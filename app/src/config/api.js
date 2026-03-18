@@ -1,11 +1,9 @@
-import { Platform } from 'react-native';
+// Production server on AWS
+const PRODUCTION_URL = 'http://52.14.24.27:3000/api';
 
-const getBaseUrl = () => {
-  if (Platform.OS === 'android') {
-    return 'http://10.0.2.2:3000/api'; // Android emulator -> host machine
-  }
-  // iOS simulator, web, or physical device on same network
-  return 'http://localhost:3000/api';
-};
+// Local development server
+// import { Platform } from 'react-native';
+// const LOCAL_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3000/api' : 'http://localhost:3000/api';
 
-export const API_URL = getBaseUrl();
+// Toggle between production and local:
+export const API_URL = PRODUCTION_URL;

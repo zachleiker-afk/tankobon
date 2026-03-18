@@ -192,7 +192,7 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>MangaShelf</Text>
+        <Text style={styles.headerTitle}>Tankobon</Text>
         <TouchableOpacity onPress={() => setShowSearch(!showSearch)}>
           <Text style={styles.findUsersText}>{showSearch ? 'Feed' : 'Find Users'}</Text>
         </TouchableOpacity>

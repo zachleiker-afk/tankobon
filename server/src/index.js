@@ -22,11 +22,11 @@ app.use('/api/user', authMiddleware, userRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'MangaShelf API is running' });
+  res.json({ status: 'ok', message: 'Tankobon API is running' });
 });
 
 app.listen(PORT, () => {
-  console.log(`MangaShelf server running on port ${PORT}`);
+  console.log(`Tankobon server running on port ${PORT}`);
 
   // Start the daily manga sync scheduler
   startScheduler();

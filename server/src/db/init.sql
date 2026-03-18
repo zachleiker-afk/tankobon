@@ -1,4 +1,4 @@
--- MangaShelf Database Schema
+-- Tankobon Database Schema
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (

@@ -34,7 +34,7 @@ const SignUpScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>MangaShelf</Text>
+      <Text style={styles.title}>Tankobon</Text>
       <Text style={styles.subtitle}>Create your account</Text>
       <TextInput
         style={styles.input}

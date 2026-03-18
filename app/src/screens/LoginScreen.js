@@ -29,7 +29,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>MangaShelf</Text>
+      <Text style={styles.title}>Tankobon</Text>
       <Text style={styles.subtitle}>Welcome back!</Text>
       <TextInput
         style={styles.input}

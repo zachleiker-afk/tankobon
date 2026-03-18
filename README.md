@@ -1,4 +1,4 @@
-# MangaShelf
+# Tankobon
 
 A social manga tracking app built with React Native/Expo and Express.js + PostgreSQL.
 
@@ -28,7 +28,7 @@ Search for manga, track your reading progress, rate titles, and follow other rea
 ## Project Structure
 
 ```
-mangashelf/
+tankobon/
 ├── app/                    # React Native / Expo frontend
 │   └── src/
 │       ├── config/         # API configuration
@@ -56,10 +56,10 @@ mangashelf/
 
 ```bash
 # Create the database
-createdb -U postgres mangashelf
+createdb -U postgres tankobon
 
 # Run the schema
-psql -U postgres -d mangashelf -f server/src/db/init.sql
+psql -U postgres -d tankobon -f server/src/db/init.sql
 ```
 
 ### 2. Configure Environment
@@ -67,7 +67,7 @@ psql -U postgres -d mangashelf -f server/src/db/init.sql
 Create `server/.env`:
 
 ```
-DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/mangashelf
+DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/tankobon
 JWT_SECRET=your_secret_key
 PORT=3000
 ```

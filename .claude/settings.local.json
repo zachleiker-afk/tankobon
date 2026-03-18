@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(psql --version)",
+      "Bash(pg_isready)",
+      "Bash(npx expo:*)",
+      "Read(//c/Program Files/nodejs/**)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" --version)",
+      "Read(//c/Users/zachl/Documents/Work projects/mangashelf/$APPDATA/**)",
+      "Read(//c/Users/zachl/Documents/Work projects/mangashelf/$APPDATA/nvm/**)",
+      "Bash(winget install:*)",
+      "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\")",
+      "Bash(export PATH=\"/c/Program Files/PostgreSQL/17/bin:$PATH\")",
+      "Bash(pg_isready -h localhost -p 5432)",
+      "Bash(PGPASSWORD=PicklesRUs psql -h localhost -U postgres -c \"SELECT 1\")",
+      "Bash(PGPASSWORD=postgres psql -h localhost -U postgres -c \"SELECT 1\")",
+      "Bash(PGPASSWORD=postgres createdb -h localhost -U postgres mangashelf)",
+      "Bash(PGPASSWORD=postgres psql -h localhost -U postgres -d mangashelf -f \"C:/Users/zachl/Documents/Work projects/mangashelf/server/src/db/init.sql\")",
+      "Bash(PGPASSWORD=postgres psql -h localhost -U postgres -d mangashelf -c \"\\\\dt\")",
+      "Bash(npm ls:*)",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/signup -H \"Content-Type: application/json\" -d '{\"\"username\"\":\"\"testuser\"\",\"\"email\"\":\"\"test@test.com\"\",\"\"password\"\":\"\"password123\"\"}')",
+      "Bash(curl -s \"http://localhost:3000/api/manga/search?q=one+piece\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f''''Found {len\\(d[manga]\\)} results''''\\); print\\(d[''''manga''''][0][''''title''''] if d[''''manga''''] else ''''none''''\\)\")",
+      "Bash(curl -s http://localhost:3000/api/manga/search?q=one+piece)",
+      "Bash(npm install:*)",
+      "Bash(node -e \":*)",
+      "Bash(PGPASSWORD=postgres psql -h localhost -U postgres -d mangashelf -c \"SELECT COUNT\\(*\\) as total_manga FROM manga;\")",
+      "Bash(curl -s http://localhost:8081)",
+      "Bash(curl -s http://localhost:19006)",
+      "Bash(git --version)",
+      "Bash(gh --version)"
+    ]
+  }
+}

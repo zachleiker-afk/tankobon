@@ -5,18 +5,28 @@ import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import MangaDetailScreen from '../screens/MangaDetailScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
+import { useTheme } from '../context/ThemeContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const TabNavigator = () => {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#6C5CE7',
-        tabBarInactiveTintColor: '#999',
-        tabBarStyle: { paddingBottom: 5, paddingTop: 5, height: 55 },
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textTertiary,
+        tabBarStyle: {
+          paddingBottom: 5,
+          paddingTop: 5,
+          height: 55,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.borderLight,
+        },
       }}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
@@ -31,6 +41,7 @@ const AppNavigator = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={TabNavigator} />
       <Stack.Screen name="MangaDetail" component={MangaDetailScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     </Stack.Navigator>
   );
 };

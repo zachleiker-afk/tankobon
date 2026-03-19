@@ -5,8 +5,10 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { API_URL } from '../config/api';
+import { getStatusColor } from '../theme/colors';
 
 const STATUS_LABELS = {
   reading: 'Reading',
@@ -18,6 +20,7 @@ const STATUS_LABELS = {
 
 const ProfileScreen = ({ navigation }) => {
   const { userToken, user, signOut } = useAuth();
+  const { colors, isDark, toggleTheme } = useTheme();
   const [profile, setProfile] = useState(null);
   const [library, setLibrary] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,10 +74,12 @@ const ProfileScreen = ({ navigation }) => {
     ]);
   };
 
+  const styles = makeStyles(colors);
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6C5CE7" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -85,9 +90,14 @@ const ProfileScreen = ({ navigation }) => {
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.screenTitle}>Profile</Text>
-          <TouchableOpacity onPress={handleLogout}>
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity onPress={toggleTheme} style={styles.themeToggle}>
+              <Text style={styles.themeToggleText}>{isDark ? '\u2600\uFE0F' : '\uD83C\uDF19'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleLogout}>
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.profileInfo}>
@@ -96,7 +106,15 @@ const ProfileScreen = ({ navigation }) => {
               {profile?.user?.username?.[0]?.toUpperCase() || '?'}
             </Text>
           </View>
-          <Text style={styles.username}>{profile?.user?.username || 'User'}</Text>
+          <View style={styles.usernameRow}>
+            <Text style={styles.username}>{profile?.user?.username || 'User'}</Text>
+            <TouchableOpacity
+              style={styles.editProfileButton}
+              onPress={() => navigation.navigate('EditProfile', { profile: profile?.user })}
+            >
+              <Text style={styles.editProfileText}>Edit Profile</Text>
+            </TouchableOpacity>
+          </View>
           <Text style={styles.email}>{profile?.user?.email}</Text>
         </View>
 
@@ -155,11 +173,11 @@ const ProfileScreen = ({ navigation }) => {
               <View style={styles.libraryInfo}>
                 <Text style={styles.libraryTitle} numberOfLines={2}>{item.title}</Text>
                 <View style={styles.libraryMeta}>
-                  <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+                  <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status, colors) }]}>
                     <Text style={styles.statusBadgeText}>{STATUS_LABELS[item.status]}</Text>
                   </View>
                   {item.rating && (
-                    <Text style={styles.ratingText}>★ {item.rating}/10</Text>
+                    <Text style={styles.ratingText}>{'\u2605'} {item.rating}/10</Text>
                   )}
                 </View>
                 {item.chapters_read > 0 && (
@@ -184,52 +202,50 @@ const ProfileScreen = ({ navigation }) => {
   );
 };
 
-const getStatusColor = (status) => {
-  const colors = {
-    reading: '#27ae60',
-    completed: '#6C5CE7',
-    plan_to_read: '#3498db',
-    on_hold: '#f39c12',
-    dropped: '#e74c3c',
-  };
-  return colors[status] || '#999';
-};
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { backgroundColor: '#fff', paddingTop: 50, paddingBottom: 20, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#eee' },
+const makeStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background },
+  header: { backgroundColor: colors.surface, paddingTop: 50, paddingBottom: 20, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  screenTitle: { fontSize: 24, fontWeight: 'bold', color: '#333' },
-  logoutText: { color: '#e74c3c', fontSize: 15, fontWeight: '600' },
+  screenTitle: { fontSize: 24, fontWeight: 'bold', color: colors.textPrimary },
+  headerActions: { flexDirection: 'row', alignItems: 'center' },
+  themeToggle: { marginRight: 16, padding: 4 },
+  themeToggleText: { fontSize: 22 },
+  logoutText: { color: colors.error, fontSize: 15, fontWeight: '600' },
   profileInfo: { alignItems: 'center', marginBottom: 20 },
-  avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#6C5CE7', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+  avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
   avatarText: { color: '#fff', fontSize: 32, fontWeight: 'bold' },
-  username: { fontSize: 22, fontWeight: 'bold', color: '#333' },
-  email: { fontSize: 14, color: '#999', marginTop: 4 },
-  statsRow: { flexDirection: 'row', justifyContent: 'space-around', paddingTop: 16, borderTopWidth: 1, borderTopColor: '#eee' },
+  usernameRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
+  username: { fontSize: 22, fontWeight: 'bold', color: colors.textPrimary },
+  editProfileButton: { marginLeft: 10, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: colors.primary },
+  editProfileText: { color: colors.primary, fontSize: 12, fontWeight: '600' },
+  email: { fontSize: 14, color: colors.textTertiary, marginTop: 4 },
+  statsRow: { flexDirection: 'row', justifyContent: 'space-around', paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.borderLight },
   statItem: { alignItems: 'center' },
-  statNumber: { fontSize: 20, fontWeight: 'bold', color: '#6C5CE7' },
-  statLabel: { fontSize: 12, color: '#999', marginTop: 2 },
-  section: { padding: 16, backgroundColor: '#fff', marginTop: 8 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', marginBottom: 12 },
+  statNumber: { fontSize: 20, fontWeight: 'bold', color: colors.primary },
+  statLabel: { fontSize: 12, color: colors.textTertiary, marginTop: 2 },
+  section: { padding: 16, backgroundColor: colors.surface, marginTop: 8 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, marginBottom: 12 },
   filterRow: { flexDirection: 'row' },
-  filterChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#ddd', marginRight: 8 },
-  filterChipActive: { backgroundColor: '#6C5CE7', borderColor: '#6C5CE7' },
-  filterText: { color: '#666', fontSize: 13 },
+  filterChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: colors.border, marginRight: 8 },
+  filterChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  filterText: { color: colors.textSecondary, fontSize: 13 },
   filterTextActive: { color: '#fff', fontWeight: 'bold' },
   librarySection: { padding: 16 },
-  libraryCard: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: 12, marginBottom: 12, overflow: 'hidden', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 4 },
+  libraryCard: {
+    flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 12, marginBottom: 12, overflow: 'hidden',
+    elevation: 2, shadowColor: colors.shadow, shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 4
+  },
   libraryCover: { width: 80, height: 110 },
   libraryInfo: { flex: 1, padding: 12, justifyContent: 'center' },
-  libraryTitle: { fontSize: 15, fontWeight: 'bold', color: '#333', marginBottom: 8 },
+  libraryTitle: { fontSize: 15, fontWeight: 'bold', color: colors.textPrimary, marginBottom: 8 },
   libraryMeta: { flexDirection: 'row', alignItems: 'center' },
   statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4, marginRight: 8 },
   statusBadgeText: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
-  ratingText: { color: '#f39c12', fontSize: 13, fontWeight: 'bold' },
-  chaptersText: { fontSize: 12, color: '#999', marginTop: 4 },
+  ratingText: { color: colors.ratingStarColor, fontSize: 13, fontWeight: 'bold' },
+  chaptersText: { fontSize: 12, color: colors.textTertiary, marginTop: 4 },
   emptyLibrary: { padding: 40, alignItems: 'center' },
-  emptyText: { color: '#999', fontSize: 15, textAlign: 'center' },
+  emptyText: { color: colors.textTertiary, fontSize: 15, textAlign: 'center' },
 });
 
 export default ProfileScreen;

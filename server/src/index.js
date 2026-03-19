@@ -5,6 +5,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const mangaRoutes = require('./routes/manga');
 const userRoutes = require('./routes/user');
+const notificationRoutes = require('./routes/notifications');
 const authMiddleware = require('./middleware/auth');
 const { startScheduler } = require('./jobs/scheduler');
 
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/manga', mangaRoutes);
 app.use('/api/user', authMiddleware, userRoutes);
+app.use('/api/notifications', authMiddleware, notificationRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

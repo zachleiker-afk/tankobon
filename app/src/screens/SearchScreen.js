@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { API_URL } from '../config/api';
 
 const SearchScreen = ({ navigation }) => {
@@ -13,6 +14,7 @@ const SearchScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const { userToken } = useAuth();
+  const { colors } = useTheme();
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -32,6 +34,8 @@ const SearchScreen = ({ navigation }) => {
     setLoading(false);
   };
 
+  const styles = makeStyles(colors);
+
   const renderMangaCard = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
@@ -48,7 +52,7 @@ const SearchScreen = ({ navigation }) => {
         <View style={styles.cardMeta}>
           {item.score && (
             <View style={styles.scoreBadge}>
-              <Text style={styles.scoreText}>★ {item.score}</Text>
+              <Text style={styles.scoreText}>{'\u2605'} {item.score}</Text>
             </View>
           )}
           <Text style={styles.cardStatus}>{item.status || 'Unknown'}</Text>
@@ -71,6 +75,7 @@ const SearchScreen = ({ navigation }) => {
         <TextInput
           style={styles.searchInput}
           placeholder="Search for manga..."
+          placeholderTextColor={colors.placeholder}
           value={query}
           onChangeText={setQuery}
           onSubmitEditing={handleSearch}
@@ -83,7 +88,7 @@ const SearchScreen = ({ navigation }) => {
 
       {loading ? (
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#6C5CE7" />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Searching...</Text>
         </View>
       ) : results.length > 0 ? (
@@ -107,46 +112,47 @@ const SearchScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa', paddingTop: 50 },
-  header: { fontSize: 24, fontWeight: 'bold', color: '#333', paddingHorizontal: 16, marginBottom: 16 },
+const makeStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background, paddingTop: 50 },
+  header: { fontSize: 24, fontWeight: 'bold', color: colors.textPrimary, paddingHorizontal: 16, marginBottom: 16 },
   searchRow: { flexDirection: 'row', paddingHorizontal: 16, marginBottom: 16 },
   searchInput: {
-    flex: 1, borderWidth: 1, borderColor: '#ddd', borderRadius: 8,
-    padding: 12, fontSize: 16, backgroundColor: '#fff', marginRight: 8
+    flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 8,
+    padding: 12, fontSize: 16, backgroundColor: colors.inputBackground, marginRight: 8,
+    color: colors.textPrimary
   },
   searchButton: {
-    backgroundColor: '#6C5CE7', paddingHorizontal: 20, borderRadius: 8,
+    backgroundColor: colors.primary, paddingHorizontal: 20, borderRadius: 8,
     justifyContent: 'center', alignItems: 'center'
   },
   searchButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
   centerContent: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { marginTop: 10, color: '#666' },
-  emptyText: { color: '#999', fontSize: 16 },
+  loadingText: { marginTop: 10, color: colors.textSecondary },
+  emptyText: { color: colors.textTertiary, fontSize: 16 },
   resultsList: { paddingHorizontal: 16, paddingBottom: 20 },
   card: {
-    flexDirection: 'row', backgroundColor: '#fff', borderRadius: 12,
+    flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 12,
     marginBottom: 12, overflow: 'hidden', elevation: 2,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowColor: colors.shadow, shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1, shadowRadius: 4
   },
   coverImage: { width: 100, height: 140 },
   cardInfo: { flex: 1, padding: 12, justifyContent: 'space-between' },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 4 },
-  cardAuthor: { fontSize: 13, color: '#666', marginBottom: 6 },
+  cardTitle: { fontSize: 16, fontWeight: 'bold', color: colors.textPrimary, marginBottom: 4 },
+  cardAuthor: { fontSize: 13, color: colors.textSecondary, marginBottom: 6 },
   cardMeta: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
   scoreBadge: {
-    backgroundColor: '#6C5CE7', paddingHorizontal: 8, paddingVertical: 2,
+    backgroundColor: colors.primary, paddingHorizontal: 8, paddingVertical: 2,
     borderRadius: 4, marginRight: 8
   },
   scoreText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
-  cardStatus: { fontSize: 12, color: '#999' },
+  cardStatus: { fontSize: 12, color: colors.textTertiary },
   genreRow: { flexDirection: 'row', flexWrap: 'wrap' },
   genreTag: {
-    backgroundColor: '#f0edff', paddingHorizontal: 8, paddingVertical: 2,
+    backgroundColor: colors.primaryLight, paddingHorizontal: 8, paddingVertical: 2,
     borderRadius: 4, marginRight: 4, marginBottom: 2
   },
-  genreText: { color: '#6C5CE7', fontSize: 11 },
+  genreText: { color: colors.primary, fontSize: 11 },
 });
 
 export default SearchScreen;

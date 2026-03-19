@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { API_URL } from '../config/api';
 
 const LoginScreen = ({ navigation }) => {
@@ -9,6 +10,7 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
+  const { colors } = useTheme();
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -27,6 +29,8 @@ const LoginScreen = ({ navigation }) => {
     setLoading(false);
   };
 
+  const styles = makeStyles(colors);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tankobon</Text>
@@ -34,7 +38,7 @@ const LoginScreen = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor="#999"
+        placeholderTextColor={colors.placeholder}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -43,7 +47,7 @@ const LoginScreen = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Password"
-        placeholderTextColor="#999"
+        placeholderTextColor={colors.placeholder}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -58,15 +62,18 @@ const LoginScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff' },
-  title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', color: '#6C5CE7', marginBottom: 8 },
-  subtitle: { fontSize: 16, textAlign: 'center', color: '#666', marginBottom: 32 },
-  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 16 },
-  button: { backgroundColor: '#6C5CE7', padding: 15, borderRadius: 8, alignItems: 'center', marginBottom: 16 },
+const makeStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: colors.background },
+  title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', color: colors.primary, marginBottom: 8 },
+  subtitle: { fontSize: 16, textAlign: 'center', color: colors.textSecondary, marginBottom: 32 },
+  input: {
+    borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12,
+    marginBottom: 16, fontSize: 16, backgroundColor: colors.inputBackground, color: colors.textPrimary
+  },
+  button: { backgroundColor: colors.primary, padding: 15, borderRadius: 8, alignItems: 'center', marginBottom: 16 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  linkText: { textAlign: 'center', color: '#666' },
-  link: { color: '#6C5CE7', fontWeight: 'bold' },
+  linkText: { textAlign: 'center', color: colors.textSecondary },
+  link: { color: colors.primary, fontWeight: 'bold' },
 });
 
 export default LoginScreen;

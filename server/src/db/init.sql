@@ -58,6 +58,15 @@ CREATE TABLE IF NOT EXISTS activity_feed (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Push notification tokens
+CREATE TABLE IF NOT EXISTS push_tokens (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token TEXT UNIQUE NOT NULL,
+  platform TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_user_manga_user_id ON user_manga(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_manga_manga_id ON user_manga(manga_id);
@@ -67,3 +76,4 @@ CREATE INDEX IF NOT EXISTS idx_activity_feed_user ON activity_feed(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_feed_created ON activity_feed(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_manga_external_id ON manga(external_id);
 CREATE INDEX IF NOT EXISTS idx_manga_score ON manga(score DESC);
+CREATE INDEX IF NOT EXISTS idx_push_tokens_user_id ON push_tokens(user_id);

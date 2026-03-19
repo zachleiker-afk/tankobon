@@ -5,11 +5,13 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { API_URL } from '../config/api';
 
 const HomeScreen = ({ navigation }) => {
   const { userToken, user } = useAuth();
+  const { colors } = useTheme();
   const [feed, setFeed] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -68,9 +70,7 @@ const HomeScreen = ({ navigation }) => {
         headers: { Authorization: `Bearer ${userToken}` }
       });
       Alert.alert('Success', `Now following ${username}!`);
-      // Remove from search results
       setSearchResults(prev => prev.filter(u => u.id !== userId));
-      // Refresh feed
       fetchFeed();
     } catch (error) {
       const msg = error.response?.data?.error || 'Failed to follow user';
@@ -107,6 +107,8 @@ const HomeScreen = ({ navigation }) => {
     return date.toLocaleDateString();
   };
 
+  const styles = makeStyles(colors);
+
   const renderTrending = () => {
     if (trending.length === 0) return null;
     return (
@@ -130,7 +132,7 @@ const HomeScreen = ({ navigation }) => {
               />
               <Text style={styles.trendingTitle} numberOfLines={2}>{item.title}</Text>
               {item.score > 0 && (
-                <Text style={styles.trendingScore}>★ {item.score}</Text>
+                <Text style={styles.trendingScore}>{'\u2605'} {item.score}</Text>
               )}
             </TouchableOpacity>
           )}
@@ -205,6 +207,7 @@ const HomeScreen = ({ navigation }) => {
             <TextInput
               style={styles.searchInput}
               placeholder="Search by username..."
+              placeholderTextColor={colors.placeholder}
               value={searchQuery}
               onChangeText={setSearchQuery}
               onSubmitEditing={searchUsers}
@@ -217,7 +220,7 @@ const HomeScreen = ({ navigation }) => {
           </View>
 
           {searching ? (
-            <ActivityIndicator size="large" color="#6C5CE7" style={{ marginTop: 40 }} />
+            <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
           ) : searchResults.length > 0 ? (
             <FlatList
               data={searchResults}
@@ -235,7 +238,7 @@ const HomeScreen = ({ navigation }) => {
         /* Feed Mode */
         <View style={styles.content}>
           {loading ? (
-            <ActivityIndicator size="large" color="#6C5CE7" style={{ marginTop: 40 }} />
+            <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
           ) : feed.length > 0 ? (
             <FlatList
               data={feed}
@@ -263,76 +266,77 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
+const makeStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   header: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingTop: 50, paddingBottom: 16, paddingHorizontal: 16,
-    backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee'
+    backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.borderLight
   },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#6C5CE7' },
-  findUsersText: { color: '#6C5CE7', fontSize: 15, fontWeight: '600' },
+  headerTitle: { fontSize: 24, fontWeight: 'bold', color: colors.primary },
+  findUsersText: { color: colors.primary, fontSize: 15, fontWeight: '600' },
   content: { flex: 1 },
   searchRow: { flexDirection: 'row', padding: 16 },
   searchInput: {
-    flex: 1, borderWidth: 1, borderColor: '#ddd', borderRadius: 8,
-    padding: 12, fontSize: 16, backgroundColor: '#fff', marginRight: 8
+    flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 8,
+    padding: 12, fontSize: 16, backgroundColor: colors.inputBackground, marginRight: 8,
+    color: colors.textPrimary
   },
   searchButton: {
-    backgroundColor: '#6C5CE7', paddingHorizontal: 20, borderRadius: 8,
+    backgroundColor: colors.primary, paddingHorizontal: 20, borderRadius: 8,
     justifyContent: 'center', alignItems: 'center'
   },
   searchButtonText: { color: '#fff', fontWeight: 'bold' },
   listPadding: { padding: 16 },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  emptyTitle: { fontSize: 22, fontWeight: 'bold', color: '#333', marginBottom: 12 },
-  emptyText: { fontSize: 15, color: '#999', textAlign: 'center', lineHeight: 22 },
+  emptyTitle: { fontSize: 22, fontWeight: 'bold', color: colors.textPrimary, marginBottom: 12 },
+  emptyText: { fontSize: 15, color: colors.textTertiary, textAlign: 'center', lineHeight: 22 },
   // Feed cards
   feedCard: {
-    backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12,
-    elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    backgroundColor: colors.surface, borderRadius: 12, padding: 16, marginBottom: 12,
+    elevation: 2, shadowColor: colors.shadow, shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1, shadowRadius: 4
   },
   feedHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   feedAvatar: {
-    width: 40, height: 40, borderRadius: 20, backgroundColor: '#6C5CE7',
+    width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primary,
     justifyContent: 'center', alignItems: 'center', marginRight: 10
   },
   feedAvatarText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   feedHeaderText: { flex: 1 },
-  feedUsername: { fontSize: 15, fontWeight: 'bold', color: '#333' },
-  feedTime: { fontSize: 12, color: '#999' },
+  feedUsername: { fontSize: 15, fontWeight: 'bold', color: colors.textPrimary },
+  feedTime: { fontSize: 12, color: colors.textTertiary },
   feedBody: {},
-  feedAction: { fontSize: 15, color: '#555', lineHeight: 22, marginBottom: 8 },
+  feedAction: { fontSize: 15, color: colors.feedAction, lineHeight: 22, marginBottom: 8 },
   feedMangaCover: { width: 80, height: 110, borderRadius: 6, marginTop: 4 },
   // User search results
   userCard: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface,
     borderRadius: 12, padding: 14, marginBottom: 10,
-    elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    elevation: 1, shadowColor: colors.shadow, shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05, shadowRadius: 2
   },
   userAvatar: {
-    width: 44, height: 44, borderRadius: 22, backgroundColor: '#6C5CE7',
+    width: 44, height: 44, borderRadius: 22, backgroundColor: colors.primary,
     justifyContent: 'center', alignItems: 'center', marginRight: 12
   },
   userAvatarText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
   userInfo: { flex: 1 },
-  userUsername: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-  userBio: { fontSize: 13, color: '#999', marginTop: 2 },
+  userUsername: { fontSize: 16, fontWeight: 'bold', color: colors.textPrimary },
+  userBio: { fontSize: 13, color: colors.textTertiary, marginTop: 2 },
   followButton: {
-    backgroundColor: '#6C5CE7', paddingHorizontal: 16, paddingVertical: 8,
+    backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 8,
     borderRadius: 6
   },
   followButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
   // Trending section
-  trendingSection: { backgroundColor: '#fff', paddingVertical: 16, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  trendingSectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', paddingHorizontal: 16, marginBottom: 12 },
+  trendingSection: { backgroundColor: colors.surface, paddingVertical: 16, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
+  trendingSectionTitle: { fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, paddingHorizontal: 16, marginBottom: 12 },
   trendingList: { paddingHorizontal: 12 },
   trendingCard: { width: 120, marginHorizontal: 4 },
   trendingCover: { width: 120, height: 170, borderRadius: 8, marginBottom: 6 },
-  trendingTitle: { fontSize: 12, fontWeight: '600', color: '#333', marginBottom: 2 },
-  trendingScore: { fontSize: 11, color: '#6C5CE7', fontWeight: 'bold' },
+  trendingTitle: { fontSize: 12, fontWeight: '600', color: colors.textPrimary, marginBottom: 2 },
+  trendingScore: { fontSize: 11, color: colors.primary, fontWeight: 'bold' },
 });
 
 export default HomeScreen;

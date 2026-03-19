@@ -1,4 +1,5 @@
 // Production server on AWS
+// Once tankobon.is-a.dev is active, use: 'http://tankobon.is-a.dev:3000/api'
 const PRODUCTION_URL = 'http://52.14.24.27:3000/api';
 
 // Local development server

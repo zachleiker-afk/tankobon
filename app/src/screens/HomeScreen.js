@@ -118,12 +118,12 @@ const HomeScreen = ({ navigation }) => {
           horizontal
           data={trending}
           showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => (item.mal_id || item.id || item.external_id).toString()}
           contentContainerStyle={styles.trendingList}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.trendingCard}
-              onPress={() => navigation.navigate('MangaDetail', { malId: item.external_id })}
+              onPress={() => navigation.navigate('MangaDetail', { malId: item.mal_id || item.external_id })}
             >
               <Image
                 source={{ uri: item.cover_image }}

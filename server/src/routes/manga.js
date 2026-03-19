@@ -55,23 +55,69 @@ router.post('/sync', authMiddleware, async (req, res) => {
   }
 });
 
+// In-memory cache for trending manga (refreshes every 30 minutes)
+let trendingCache = { data: null, timestamp: 0 };
+const TRENDING_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
 // GET /api/manga/trending
-// Public route - get top-rated manga from our database
+// Public route - get trending manga from Jikan API (with caching)
 router.get('/trending', async (req, res) => {
   try {
     const { limit = 20 } = req.query;
-    const result = await pool.query(
-      `SELECT id, external_id, title, author, cover_image, genres, status, chapters_count, score
-       FROM manga
-       WHERE score > 0
-       ORDER BY score DESC, updated_at DESC
-       LIMIT $1`,
-      [Math.min(parseInt(limit), 50)]
-    );
-    res.json({ manga: result.rows });
+    const requestedLimit = Math.min(parseInt(limit), 50);
+    const now = Date.now();
+
+    // Return cached data if still fresh
+    if (trendingCache.data && (now - trendingCache.timestamp) < TRENDING_CACHE_TTL) {
+      return res.json({ manga: trendingCache.data.slice(0, requestedLimit) });
+    }
+
+    // Fetch top manga from Jikan API
+    const response = await axios.get(`${JIKAN_BASE}/top/manga`, {
+      params: { limit: 25, filter: 'bypopularity' }
+    });
+
+    const manga = response.data.data.map(m => ({
+      external_id: m.mal_id.toString(),
+      mal_id: m.mal_id,
+      title: m.title,
+      author: m.authors?.[0]?.name || 'Unknown',
+      cover_image: m.images?.jpg?.large_image_url || m.images?.jpg?.image_url,
+      genres: m.genres?.map(g => g.name) || [],
+      status: m.status,
+      chapters_count: m.chapters || 0,
+      score: m.score,
+    }));
+
+    // Update cache
+    trendingCache = { data: manga, timestamp: now };
+
+    // Also upsert into local DB in the background
+    for (const m of manga) {
+      pool.query(
+        `INSERT INTO manga (external_id, title, author, cover_image, genres, status, chapters_count, score)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         ON CONFLICT (external_id) DO UPDATE SET
+           score = EXCLUDED.score, cover_image = EXCLUDED.cover_image, updated_at = NOW()`,
+        [m.external_id, m.title, m.author, m.cover_image, m.genres, m.status, m.chapters_count, m.score]
+      ).catch(() => {});
+    }
+
+    res.json({ manga: manga.slice(0, requestedLimit) });
   } catch (error) {
-    console.error('Trending error:', error);
-    res.status(500).json({ error: 'Failed to get trending manga' });
+    console.error('Trending error:', error.message);
+    // Fallback to local DB if Jikan is down
+    try {
+      const result = await pool.query(
+        `SELECT id, external_id, title, author, cover_image, genres, status, chapters_count, score
+         FROM manga WHERE score > 0
+         ORDER BY score DESC LIMIT $1`,
+        [Math.min(parseInt(req.query.limit || 20), 50)]
+      );
+      res.json({ manga: result.rows });
+    } catch (dbError) {
+      res.status(500).json({ error: 'Failed to get trending manga' });
+    }
   }
 });
 
